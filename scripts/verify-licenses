@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+test "$(sha256sum LICENSE | awk '{print toupper($1)}')" = "B40930BBCF80744C86C46A12BC9DA056641D722716C378F5659B9E555EF833E1"
+test "$(sha256sum LICENSES/containernetworking-cni.txt | awk '{print toupper($1)}')" = "C6596EB7BE8581C18BE736C846FB9173B69ECCF6EF94C5135893EC56BD92BA08"
+test "$(sha256sum LICENSES/vishvananda-netns.txt | awk '{print toupper($1)}')" = "04CF148229E562C643203D1EE8C43AAE2022E5130E95CEB8BA8357A27C1A9ABE"
+test "$(sha256sum LICENSES/golang-x-sys.txt | awk '{print toupper($1)}')" = "911F8F5782931320F5B8D1160A76365B83AEA6447EE6C04FA6D5591467DB9DAD"

@@ -1,5 +1,12 @@
 /.dapper
 /bin
 /dist
+/.verify
+/coverage
+/coverage.out
+/root-coverage
+/root-coverage.out
+/metadata-coverage
+/metadata-coverage.out
 *.swp
 /.trash-cache

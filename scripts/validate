@@ -1,20 +1,18 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-cd $(dirname $0)/..
-
-echo Running validation
-
-PACKAGES=". $(find -name '*.go' | xargs -I{} dirname {} |  cut -f2 -d/ | sort -u | grep -Ev '(^\.$|.git|.trash-cache|vendor|bin)' | sed -e 's!^!./!' -e 's!$!/...!')"
-
-echo Running: go vet
-go vet ${PACKAGES}
-echo Running: golint
-for i in ${PACKAGES}; do
-    if [ -n "$(golint $i | grep -v 'should have comment.*or be unexported' | tee /dev/stderr)" ]; then
-        failed=true
-    fi
-done
-test -z "$failed"
-echo Running: go fmt
-test -z "$(go fmt ${PACKAGES} | tee /dev/stderr)"
+cd "$(dirname "$0")/.."
+test -z "$(gofmt -l .)"
+go vet ./...
+go mod verify
+test "$(go env GOVERSION)" = "go1.26.5"
+grep -F 'go 1.26.5' go.mod >/dev/null
+grep -F 'github.com/containernetworking/cni v1.3.0' go.mod >/dev/null
+grep -F 'github.com/vishvananda/netns v0.0.5' go.mod >/dev/null
+grep -F 'golang.org/x/sys v0.47.0' go.mod >/dev/null
+grep -F 'type policyTransport struct' ipfinder/metadata/ip_finder_metadata.go >/dev/null
+grep -F 'isValidRedirectURL' ipfinder/metadata/ip_finder_metadata.go >/dev/null
+grep -F 'os.ReadFile(metadataCARootPath)' ipfinder/metadata/ip_finder_metadata.go >/dev/null
+grep -F 'root.OpenFile(relativePath' main.go >/dev/null
+bash ./scripts/verify-licenses
+bash ./scripts/verify-public-tree

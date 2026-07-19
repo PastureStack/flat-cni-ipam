@@ -1,0 +1,10 @@
+{
+  "cniVersion": "1.1.0",
+  "name": "flat-wsl-smoke",
+  "bridge": "lo",
+  "bridgeSubnet": "127.0.0.1/8",
+  "ipam": {
+    "type": "flat-cni-ipam",
+    "metadataAddress": "169.254.169.250"
+  }
+}

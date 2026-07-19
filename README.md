@@ -1,28 +1,60 @@
-rancher-flat-ipam
-========
+# Flat CNI IPAM
 
-A microservice that does micro things.
+`flat-cni-ipam` is a Linux CNI IPAM plugin for assigning a control-plane-provided IPv4 address on a flat network and returning the route required to reach the platform metadata endpoint.
 
-## Building
+PastureStack is an independent community effort to preserve, audit, and modernize the Rancher 1.6 ecosystem. It is not affiliated with or endorsed by Rancher Labs or SUSE.
 
-`make`
+**Upstream:** [`rancher/rancher-flat-ipam`](https://github.com/rancher/rancher-flat-ipam). This GitHub fork retains the upstream Git history, authorship, dates, and license notices unchanged; PastureStack maintenance is consolidated into one commit after the preserved upstream boundary.
 
+## POC scope
 
-## Running
+- CNI versions 0.1.0 through 1.1.0;
+- an IPv4 address supplied through `CNI_ARGS`, with metadata lookup as a fallback;
+- a prefix supplied by the address, `subnetPrefixSize`, or `bridgeSubnet`;
+- deterministic bridge gateway selection within `bridgeSubnet`;
+- a configurable IPv4 metadata route, lookup timeout, and polling interval;
+- metadata requests limited to the reserved platform link-local addresses
+  `169.254.169.250` and `169.254.169.251`, the fixed `/2015-12-19`
+  endpoint, and standard HTTP or HTTPS ports;
+- an 8 MiB metadata response limit and an optional HTTPS CA bundle read only
+  from `/etc/pasturestack/certs`.
 
-`./bin/rancher-flat-ipam`
+The plugin has no user interface or language catalog, so localization is not applicable. IPv6 and privileged network-namespace behavior are outside this POC and remain explicit follow-up gates.
 
-## License
-Copyright (c) 2014-2016 [Rancher Labs, Inc.](http://rancher.com)
+## Build and test
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+```sh
+go test ./...
+go vet ./...
+go mod verify
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -buildvcs=false -o bin/flat-cni-ipam .
+```
 
-[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+## Configuration
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+```json
+{
+  "cniVersion": "1.1.0",
+  "name": "pasture-flat-network",
+  "bridge": "pasture0",
+  "bridgeSubnet": "10.42.0.1/16",
+  "ipam": {
+    "type": "flat-cni-ipam",
+    "metadataURL": "http://metadata/2015-12-19",
+    "metadataAddress": "169.254.169.250",
+    "lookupTimeout": "2m",
+    "pollInterval": "500ms"
+  }
+}
+```
+
+`CNI_ARGS` may supply `IPAddress` and `PlatformContainerUUID`.
+`PLATFORM_METADATA_URL`, `PLATFORM_METADATA_ADDRESS`, and `PLATFORM_CA_ROOT`
+override their corresponding runtime settings, but they remain subject to the
+same destination and managed-certificate restrictions. Optional file logging
+is restricted to `/var/log/pasturestack` while the existing
+`/var/log/pasturestack-cni.log` deployment path remains supported.
+
+## License and provenance
+
+The root Apache-2.0 license remains unchanged. Existing history and attribution are retained; see [ORIGIN.md](ORIGIN.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and [LICENSE](LICENSE).

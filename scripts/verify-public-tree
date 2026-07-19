@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+if grep -RIqE \
+    --exclude-dir=.git \
+    --exclude-dir=bin \
+    --exclude-dir=dist \
+    --exclude-dir=.verify \
+    --exclude-dir=LICENSES \
+    --exclude=.git \
+    --exclude=LICENSE \
+    --exclude=ORIGIN.md \
+    --exclude=README.md \
+    --exclude=verify-public-tree \
+    --exclude=security-release-gate.yml \
+    --exclude='*-coverage.out' \
+    --exclude=coverage.out \
+    '([[:alnum:]._%+-]+)@(gmail|hotmail|outlook|yahoo)\.[[:alpha:]]{2,}|([A-Za-z]:[\\/]+Users[\\/]+|/home/|/Users/)' .; then
+    echo "generic personal identity pattern found in the public tree" >&2
+    exit 1
+fi
+
+expected_disclaimer_hash='72a442c52870cbefd40733352316b44aad889ff52e311c8aaaa1f2bb2da97a3c'
+disclaimer_count=0
+while IFS= read -r readme_line || [ -n "$readme_line" ]; do
+    readme_line=${readme_line%$'\r'}
+    line_hash=$(printf '%s' "$readme_line" | sha256sum | awk '{print $1}')
+    if [ "$line_hash" = "$expected_disclaimer_hash" ]; then
+        disclaimer_count=$((disclaimer_count + 1))
+    fi
+done < README.md
+test "$disclaimer_count" -eq 1
