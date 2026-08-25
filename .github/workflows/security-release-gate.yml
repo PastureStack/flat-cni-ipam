@@ -18,14 +18,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      GO_VERSION: 1.26.5
-      GO_LINUX_AMD64_SHA256: 5c2c3b16caefa1d968a94c1daca04a7ca301a496d9b086e17ad77bb81393f053
+      GO_VERSION: 1.27.0
+      GO_LINUX_AMD64_SHA256: 675c26c449cbb18fc24b74650de1eabbae6e16f64326fd85a283fb3b58280685
       GOVULNCHECK_VERSION: v1.6.0
       VERSION_OVERRIDE: 0.1.1
 
     steps:
       - name: Check out candidate
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -84,14 +84,14 @@ jobs:
           cmp /tmp/product-a/flat-cni-ipam /tmp/product-b/flat-cni-ipam
           sha256sum /tmp/product-a/flat-cni-ipam > evidence/flat-cni-ipam.sha256
           go version -m /tmp/product-a/flat-cni-ipam > evidence/product-go-version.txt
-          grep -F 'go1.26.5' evidence/product-go-version.txt >/dev/null
+          grep -F 'go1.27.0' evidence/product-go-version.txt >/dev/null
           grep -F $'dep\tgithub.com/containernetworking/cni\tv1.3.0' evidence/product-go-version.txt >/dev/null
           grep -F $'dep\tgithub.com/vishvananda/netns\tv0.0.5' evidence/product-go-version.txt >/dev/null
           grep -F $'dep\tgolang.org/x/sys\tv0.47.0' evidence/product-go-version.txt >/dev/null
 
       - name: Upload review evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: flat-cni-ipam-security-${{ github.sha }}
           path: evidence/
