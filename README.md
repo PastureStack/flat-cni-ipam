@@ -6,6 +6,10 @@ PastureStack is an independent community effort to preserve, audit, and moderniz
 
 **Upstream:** [`rancher/rancher-flat-ipam`](https://github.com/rancher/rancher-flat-ipam). This GitHub fork retains the upstream Git history, authorship, dates, and license notices unchanged; PastureStack maintenance is consolidated into one commit after the preserved upstream boundary.
 
+The current public compatibility release is `v0.1.3`. This repository does
+not publish a mutable `latest` tag; deployments and reproduction must use that
+exact numeric version until a separately verified successor is released.
+
 ## POC scope
 
 - CNI versions 0.1.0 through 1.1.0;
