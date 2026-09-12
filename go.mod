@@ -2,7 +2,7 @@ module github.com/PastureStack/flat-cni-ipam
 
 go 1.26.0
 
-toolchain go1.27.0
+toolchain go1.27.1
 
 require github.com/containernetworking/cni v1.3.0
 

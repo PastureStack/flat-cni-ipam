@@ -6,9 +6,11 @@ PastureStack is an independent community effort to preserve, audit, and moderniz
 
 **Upstream:** [`rancher/rancher-flat-ipam`](https://github.com/rancher/rancher-flat-ipam). This GitHub fork retains the upstream Git history, authorship, dates, and license notices unchanged; PastureStack maintenance is consolidated into one commit after the preserved upstream boundary.
 
-The current public compatibility release is `v0.1.3`. This repository does
-not publish a mutable `latest` tag; deployments and reproduction must use that
-exact numeric version until a separately verified successor is released.
+The `v0.1.4` release target rebuilds the plugin with Go 1.27.1. Do not use the
+older `v0.1.3` binary in new deployments: it was compiled with Go 1.26.5,
+which predates security fixes in Go 1.26.6. Use `v0.1.4` only after its
+GitHub release assets and SHA256 checksums have been verified. This repository
+does not publish a mutable `latest` tag.
 
 ## POC scope
 
