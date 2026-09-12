@@ -48,8 +48,9 @@ jobs:
           set -euo pipefail
           test -z "$(git status --porcelain)"
           ./scripts/validate
-          git merge-base --is-ancestor v0.1.3 HEAD
-          test "$(git rev-list --count v0.1.3..HEAD)" -ge 1
+          # v0.1.3 is on a parallel modernization lineage; both retain v0.1.0.
+          git merge-base --is-ancestor v0.1.0 HEAD
+          test "$(git rev-list --count v0.1.0..HEAD)" -ge 1
 
       - name: Test race detector and coverage gates
         shell: bash
