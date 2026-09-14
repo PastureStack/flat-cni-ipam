@@ -90,6 +90,34 @@ func TestSelectBridgeGateway(t *testing.T) {
 	}
 }
 
+func TestSelectBridgeGatewayPrefersDerivedFirstUsableAddress(t *testing.T) {
+	configured, subnet, _ := net.ParseCIDR("192.0.2.0/24")
+	addresses := []net.Addr{
+		&net.IPNet{IP: net.ParseIP("192.0.2.20"), Mask: net.CIDRMask(24, 32)},
+		&net.IPNet{IP: net.ParseIP("192.0.2.1"), Mask: net.CIDRMask(24, 32)},
+	}
+	gateway, err := selectBridgeGateway(configured, subnet, addresses)
+	if err != nil || gateway.String() != "192.0.2.1" {
+		t.Fatalf("derived gateway=%v err=%v", gateway, err)
+	}
+
+	gateway, err = selectBridgeGateway(configured, subnet, addresses[:1])
+	if err != nil || gateway.String() != "192.0.2.20" {
+		t.Fatalf("single configured bridge address=%v err=%v", gateway, err)
+	}
+}
+
+func TestSelectBridgeGatewayKeepsAmbiguityWithoutDerivedAddress(t *testing.T) {
+	configured, subnet, _ := net.ParseCIDR("192.0.2.0/24")
+	addresses := []net.Addr{
+		&net.IPNet{IP: net.ParseIP("192.0.2.20"), Mask: net.CIDRMask(24, 32)},
+		&net.IPNet{IP: net.ParseIP("192.0.2.21"), Mask: net.CIDRMask(24, 32)},
+	}
+	if _, err := selectBridgeGateway(configured, subnet, addresses); err == nil {
+		t.Fatal("expected ambiguous bridge addresses to remain an error")
+	}
+}
+
 func TestMetadataRouteDestinationPrecedence(t *testing.T) {
 	t.Setenv("PLATFORM_METADATA_ADDRESS", "192.0.2.30")
 	address, err := metadataRouteDestination("192.0.2.20")
