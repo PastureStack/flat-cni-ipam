@@ -197,6 +197,24 @@ func metadataRouteDestination(configured string) (net.IP, error) {
 }
 
 func selectBridgeGateway(configured net.IP, subnet *net.IPNet, addresses []net.Addr) (net.IP, error) {
+	preferred := configured.To4()
+	if preferred != nil && preferred.Equal(subnet.IP.To4()) {
+		// Rancher bridge configurations traditionally describe a network with
+		// its network address (for example 192.0.2.0/24). The bridge plugin
+		// derives the first usable address for that form. Prefer the same
+		// address when it exists, so a separately configured management address
+		// on the bridge does not make restart-time reconciliation ambiguous.
+		derived := append(net.IP(nil), preferred...)
+		for index := len(derived) - 1; index >= 0; index-- {
+			derived[index]++
+			if derived[index] != 0 {
+				break
+			}
+		}
+		if subnet.Contains(derived) {
+			preferred = derived
+		}
+	}
 	candidates := make([]net.IP, 0, len(addresses))
 	for _, candidate := range addresses {
 		address := addressIP(candidate)
@@ -204,7 +222,7 @@ func selectBridgeGateway(configured net.IP, subnet *net.IPNet, addresses []net.A
 			continue
 		}
 		address = address.To4()
-		if address.Equal(configured) {
+		if address.Equal(preferred) {
 			return address, nil
 		}
 		candidates = append(candidates, address)

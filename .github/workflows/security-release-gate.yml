@@ -21,7 +21,7 @@ jobs:
       GO_VERSION: 1.27.1
       GO_LINUX_AMD64_SHA256: 63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445
       GOVULNCHECK_VERSION: v1.6.0
-      VERSION_OVERRIDE: 0.1.4
+      VERSION_OVERRIDE: 0.1.5
 
     steps:
       - name: Check out candidate

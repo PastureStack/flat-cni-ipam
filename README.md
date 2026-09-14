@@ -6,7 +6,7 @@ PastureStack is an independent community effort to preserve, audit, and moderniz
 
 **Upstream:** [`rancher/rancher-flat-ipam`](https://github.com/rancher/rancher-flat-ipam). This GitHub fork retains the upstream Git history, authorship, dates, and license notices unchanged; PastureStack maintenance is consolidated into one commit after the preserved upstream boundary.
 
-The current public compatibility release is [`v0.1.4`](https://github.com/PastureStack/flat-cni-ipam/releases/tag/v0.1.4),
+The current public compatibility release is [`v0.1.5`](https://github.com/PastureStack/flat-cni-ipam/releases/tag/v0.1.5),
 built with Go 1.27.1. Do not use the older `v0.1.3` binary in new deployments:
 it was compiled with Go 1.26.5, which predates security fixes in Go 1.26.6.
 Verify the release `SHA256SUMS` after download. This repository does not
@@ -55,6 +55,12 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -buildvcs=false -o bin/
 ```
 
 `CNI_ARGS` may supply `IPAddress` and `PlatformContainerUUID`.
+When `bridgeSubnet` uses its network address, such as `192.0.2.0/24`, the
+plugin prefers the conventional first usable bridge address if that address is
+present. This keeps metadata routing deterministic after a restart even when a
+preconfigured flat bridge also carries a separate host address. An explicitly
+configured host address in `bridgeSubnet` still takes precedence; otherwise an
+ambiguous multi-address bridge is rejected.
 `PLATFORM_METADATA_URL`, `PLATFORM_METADATA_ADDRESS`, and `PLATFORM_CA_ROOT`
 override their corresponding runtime settings, but they remain subject to the
 same destination and managed-certificate restrictions. Optional file logging
