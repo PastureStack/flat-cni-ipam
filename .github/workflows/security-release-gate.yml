@@ -135,6 +135,7 @@ jobs:
             --exit-code 0 --format json --output /evidence/product-security.json /product
           docker run --rm -v /tmp/product-a:/product:ro -v "$PWD/evidence:/evidence" \
             "$TRIVY_IMAGE" rootfs --format cyclonedx --output /evidence/product.cdx.json /product
+          PYTHONDONTWRITEBYTECODE=1 python3 .github/scripts/test_runtime_vulnerability_policy.py
           python3 .github/scripts/enforce-runtime-vulnerabilities.py \
             evidence/product-security.json .github/runtime-unfixed.json \
             --repository "$GITHUB_REPOSITORY"
