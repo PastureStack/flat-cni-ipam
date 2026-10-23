@@ -124,6 +124,18 @@ jobs:
           grep -F $'dep\tgithub.com/vishvananda/netns\tv0.0.5' evidence/product-go-version.txt >/dev/null
           grep -F $'dep\tgolang.org/x/sys\tv0.47.0' evidence/product-go-version.txt >/dev/null
 
+      - name: Scan and inventory the actual product
+        env:
+          TRIVY_IMAGE: ghcr.io/aquasecurity/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm -v /tmp/product-a:/product:ro -v "$PWD/evidence:/evidence" \
+            "$TRIVY_IMAGE" rootfs --scanners vuln,secret --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+            --exit-code 1 --format json --output /evidence/product-security.json /product
+          docker run --rm -v /tmp/product-a:/product:ro -v "$PWD/evidence:/evidence" \
+            "$TRIVY_IMAGE" rootfs --format cyclonedx --output /evidence/product.cdx.json /product
+
       - name: Upload review evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -165,4 +177,5 @@ jobs:
             -f ref="refs/tags/$RELEASE_TAG" -f sha="$tag_sha" >/dev/null
           gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "$RELEASE_TAG" --notes "Go 1.27.3 security rebuild; producer $GITHUB_SHA." \
-            evidence/release/flat-cni-ipam-v0.1.6-linux-amd64 evidence/release/SHA256SUMS
+            evidence/release/flat-cni-ipam-v0.1.6-linux-amd64 evidence/release/SHA256SUMS \
+            evidence/product-go-version.txt evidence/*.json
